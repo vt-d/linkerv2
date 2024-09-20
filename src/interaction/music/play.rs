@@ -27,6 +27,7 @@ impl MusicPlay {
         state: State,
         cache: Arc<InMemoryCache>,
     ) -> anyhow::Result<()> {
+        tracing::info!("Plinged");
         let client = state.http.interaction(interaction.application_id);
         let response = InteractionResponse {
             kind: InteractionResponseType::DeferredChannelMessageWithSource,
