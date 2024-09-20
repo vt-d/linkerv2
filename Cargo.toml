@@ -24,5 +24,12 @@ songbird = { git = "https://github.com/Erk-/songbird", branch = "erk/twilight-0-
   "gateway",
   "twilight",
   "rustls",
+  "builtin-queue",
 ] }
 twilight-standby = "0.16.0-rc.1"
+twilight-util = { version = "0.16.0-rc.1", features = ["builder"] }
+reqwest = "0.11"
+
+[dependencies.symphonia]
+version = "0.5.2"
+features = ["aac", "mp3", "isomp4", "alac"]

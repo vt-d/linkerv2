@@ -1,7 +1,6 @@
 mod interaction;
 
 use std::{
-    collections::HashMap,
     env,
     sync::{
         atomic::{AtomicBool, Ordering},
@@ -10,22 +9,19 @@ use std::{
 };
 
 use dotenvy::dotenv;
-use interaction::process_interactions;
-use songbird::{shards::TwilightMap, tracks::TrackHandle, Songbird};
-use tokio::sync::RwLock;
+use interaction::{music::MusicCommand, process_interactions};
+use songbird::{shards::TwilightMap, Songbird};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use twilight_cache_inmemory::{DefaultInMemoryCache, InMemoryCache, ResourceType};
 use twilight_gateway::{
     error::ReceiveMessageErrorType, CloseFrame, ConfigBuilder, Event, EventTypeFlags, Intents,
     Shard, StreamExt as _,
 };
 use twilight_http::Client;
 use twilight_interactions::command::CreateCommand;
-use twilight_model::{
-    gateway::{
-        payload::outgoing::update_presence::UpdatePresencePayload,
-        presence::{ActivityType, MinimalActivity, Status},
-    },
-    id::{marker::GuildMarker, Id},
+use twilight_model::gateway::{
+    payload::outgoing::update_presence::UpdatePresencePayload,
+    presence::{ActivityType, MinimalActivity, Status},
 };
 use twilight_standby::Standby;
 
@@ -36,7 +32,6 @@ type State = Arc<StateRef>;
 #[derive(Debug)]
 struct StateRef {
     http: Arc<Client>,
-    trackdata: RwLock<HashMap<Id<GuildMarker>, TrackHandle>>,
     songbird: Songbird,
     standby: Standby,
 }
@@ -62,22 +57,35 @@ async fn main() -> anyhow::Result<()> {
         .presence(presence())
         .build();
 
-    let commands = [interaction::ping::PingCommand::create_command().into()];
+    let commands = [
+        interaction::ping::PingCommand::create_command().into(),
+        MusicCommand::create_command().into(),
+    ];
     let application = client.current_user_application().await?.model().await?;
     let interaction_client = client.interaction(application.id);
 
     let (shards, state) = {
         let user_id = client.current_user().await?.model().await?.id;
 
-        let shards: Vec<Shard> =
+        let shards: Vec<(Arc<InMemoryCache>, Shard)> =
             twilight_gateway::create_recommended(&client, config, |_, builder| builder.build())
                 .await?
+                .map(|shard| {
+                    let cache = Arc::new(
+                        DefaultInMemoryCache::builder()
+                            .resource_types(ResourceType::all())
+                            .message_cache_size(8)
+                            .build(),
+                    );
+
+                    (cache, shard)
+                })
                 .collect();
 
         let senders = TwilightMap::new(
             shards
                 .iter()
-                .map(|s| (s.id().number(), s.sender()))
+                .map(|s| (s.1.id().number(), s.1.sender()))
                 .collect(),
         );
 
@@ -87,9 +95,8 @@ async fn main() -> anyhow::Result<()> {
             shards,
             Arc::new(StateRef {
                 http: client.clone(),
-                trackdata: Default::default(),
                 songbird,
-                standby: Standby::new(),
+                standby: Standby::new(), // not required for now but good to have
             }),
         )
     };
@@ -105,8 +112,8 @@ async fn main() -> anyhow::Result<()> {
     let mut tasks = Vec::with_capacity(shard_len);
 
     for shard in shards {
-        senders.push(shard.sender());
-        tasks.push(tokio::spawn(runner(shard, state.clone())));
+        senders.push(shard.1.sender());
+        tasks.push(tokio::spawn(runner(shard.1, state.clone(), shard.0)));
     }
 
     tokio::signal::ctrl_c().await?;
@@ -122,7 +129,7 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn runner(mut shard: Shard, state: State) {
+async fn runner(mut shard: Shard, state: State, cache: Arc<InMemoryCache>) {
     while let Some(item) = shard.next_event(EventTypeFlags::all()).await {
         let event = match item {
             Ok(Event::GatewayClose(_)) if SHUTDOWN.load(Ordering::Relaxed) => break,
@@ -142,8 +149,10 @@ async fn runner(mut shard: Shard, state: State) {
         state.standby.process(&event);
         state.songbird.process(&event).await;
 
-        tracing::info!(kind = ?event.kind(), shard = ?shard.id().number(), "received event");
-        tokio::spawn(process_interactions(event, state.clone()));
+        cache.update(&event);
+
+        //tracing::info!(kind = ?event.kind(), shard = ?shard.id().number(), "received event");
+        tokio::spawn(process_interactions(event, state.clone(), cache.clone()));
     }
 }
 

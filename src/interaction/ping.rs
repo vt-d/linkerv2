@@ -14,9 +14,9 @@ impl PingCommand {
     pub async fn handle(
         interaction: Interaction,
         _: CommandData,
-        client: State,
+        state: State,
     ) -> anyhow::Result<()> {
-        let client = client.http.interaction(interaction.application_id);
+        let client = state.http.interaction(interaction.application_id);
         let response = InteractionResponse {
             kind: InteractionResponseType::ChannelMessageWithSource,
             data: Some(InteractionResponseData {
