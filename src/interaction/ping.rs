@@ -24,6 +24,7 @@ impl PingCommand {
                 ..Default::default()
             }),
         };
+        tracing::info!("called");
 
         client
             .create_response(interaction.id, &interaction.token, &response)

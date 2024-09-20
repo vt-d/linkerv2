@@ -17,18 +17,15 @@ pub enum MusicCommand {
 }
 
 impl MusicCommand {
-    /// Handle incoming `/xkcd` commands.
     pub async fn handle(
         interaction: Interaction,
         data: CommandData,
         state: State,
         cache: Arc<InMemoryCache>,
     ) -> anyhow::Result<()> {
-        // Parse the command data into a structure using twilight-interactions.
         let command = MusicCommand::from_interaction(data.clone().into())
             .context("failed to parse command data")?;
 
-        // Call the appropriate subcommand.
         match command {
             MusicCommand::Play(command) => command.run(interaction, data, state, cache).await,
         }

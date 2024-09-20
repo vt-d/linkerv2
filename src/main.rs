@@ -151,7 +151,7 @@ async fn runner(mut shard: Shard, state: State, cache: Arc<InMemoryCache>) {
 
         cache.update(&event);
 
-        //tracing::info!(kind = ?event.kind(), shard = ?shard.id().number(), "received event");
+        tracing::info!(kind = ?event.kind(), shard = ?shard.id().number(), "received event");
         tokio::spawn(process_interactions(event, state.clone(), cache.clone()));
     }
 }

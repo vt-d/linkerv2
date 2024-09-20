@@ -27,9 +27,19 @@ impl MusicPlay {
         state: State,
         cache: Arc<InMemoryCache>,
     ) -> anyhow::Result<()> {
-        let query = self.query.clone();
-
         let client = state.http.interaction(interaction.application_id);
+        let response = InteractionResponse {
+            kind: InteractionResponseType::DeferredChannelMessageWithSource,
+            data: None,
+        };
+
+        client
+            .create_response(interaction.id, &interaction.token, &response)
+            .await?;
+
+        tracing::info!("Plinged");
+
+        let query = self.query.clone();
 
         let guild_id = match interaction.guild_id {
             Some(guild_id) => guild_id,
@@ -57,15 +67,6 @@ impl MusicPlay {
 
             call_lock.lock().await
         };
-
-        let response = InteractionResponse {
-            kind: InteractionResponseType::DeferredChannelMessageWithSource,
-            data: None,
-        };
-
-        client
-            .create_response(interaction.id, &interaction.token, &response)
-            .await?;
 
         let mut src: YoutubeDl;
         if query.starts_with("http") {
