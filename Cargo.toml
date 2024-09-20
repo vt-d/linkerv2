@@ -25,3 +25,4 @@ songbird = { git = "https://github.com/Erk-/songbird", branch = "erk/twilight-0-
   "twilight",
   "rustls",
 ] }
+twilight-standby = "0.16.0-rc.1"

@@ -1,9 +1,10 @@
-use twilight_http::Client;
 use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::{
     application::interaction::{application_command::CommandData, Interaction},
     http::interaction::{InteractionResponse, InteractionResponseData, InteractionResponseType},
 };
+
+use crate::State;
 
 #[derive(CommandModel, CreateCommand)]
 #[command(name = "ping", desc = "Pong")]
@@ -13,9 +14,9 @@ impl PingCommand {
     pub async fn handle(
         interaction: Interaction,
         _: CommandData,
-        client: &Client,
+        client: State,
     ) -> anyhow::Result<()> {
-        let client = client.interaction(interaction.application_id);
+        let client = client.http.interaction(interaction.application_id);
         let response = InteractionResponse {
             kind: InteractionResponseType::ChannelMessageWithSource,
             data: Some(InteractionResponseData {

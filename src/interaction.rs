@@ -1,17 +1,18 @@
 pub mod music;
 pub mod ping;
 
-use std::{mem, sync::Arc};
+use std::mem;
 
 use anyhow::bail;
 use ping::PingCommand;
 use twilight_gateway::Event;
-use twilight_http::Client;
 use twilight_model::application::interaction::{
     application_command::CommandData, Interaction, InteractionData,
 };
 
-pub async fn process_interactions(event: Event, client: Arc<Client>) {
+use crate::State;
+
+pub async fn process_interactions(event: Event, client: State) {
     let mut interaction = match event {
         Event::InteractionCreate(interaction) => interaction.0,
         _ => return,
@@ -25,7 +26,7 @@ pub async fn process_interactions(event: Event, client: Arc<Client>) {
         }
     };
 
-    if let Err(error) = handle_command(interaction, data, &client).await {
+    if let Err(error) = handle_command(interaction, data, client).await {
         tracing::error!(?error, "error while handling command");
     }
 }
@@ -33,7 +34,7 @@ pub async fn process_interactions(event: Event, client: Arc<Client>) {
 async fn handle_command(
     interaction: Interaction,
     data: CommandData,
-    client: &Client,
+    client: State,
 ) -> anyhow::Result<()> {
     match &*data.name {
         "ping" => PingCommand::handle(interaction, data, client).await,
