@@ -1,0 +1,17 @@
+[package]
+name = "linkbot"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.89"
+dotenvy = "0.15.7"
+tokio = { version = "1.40.0", features = ["signal", "rt-multi-thread", "macros"] }
+tracing = "0.1.40"
+tracing-journald = "0.3.0"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+twilight-cache-inmemory = "0.16.0-rc.1"
+twilight-gateway = "0.16.0-rc.1"
+twilight-http = "0.16.0-rc.1"
+twilight-interactions = "0.16.0-rc.1"
+twilight-model = "0.16.0-rc.1"
