@@ -1,3 +1,4 @@
+pub mod music;
 pub mod ping;
 
 use std::{mem, sync::Arc};
@@ -11,7 +12,6 @@ use twilight_model::application::interaction::{
 };
 
 pub async fn process_interactions(event: Event, client: Arc<Client>) {
-    // We only care about interaction events.
     let mut interaction = match event {
         Event::InteractionCreate(interaction) => interaction.0,
         _ => return,

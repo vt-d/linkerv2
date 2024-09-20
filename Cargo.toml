@@ -6,7 +6,11 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.89"
 dotenvy = "0.15.7"
-tokio = { version = "1.40.0", features = ["signal", "rt-multi-thread", "macros"] }
+tokio = { version = "1.40.0", features = [
+  "signal",
+  "rt-multi-thread",
+  "macros",
+] }
 tracing = "0.1.40"
 tracing-journald = "0.3.0"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
@@ -15,3 +19,9 @@ twilight-gateway = "0.16.0-rc.1"
 twilight-http = "0.16.0-rc.1"
 twilight-interactions = "0.16.0-rc.1"
 twilight-model = "0.16.0-rc.1"
+songbird = { git = "https://github.com/Erk-/songbird", branch = "erk/twilight-0-16-rc", features = [
+  "driver",
+  "gateway",
+  "twilight",
+  "rustls",
+] }
