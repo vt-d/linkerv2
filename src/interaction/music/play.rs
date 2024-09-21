@@ -73,7 +73,7 @@ impl MusicPlay {
         if query.starts_with("http") {
             src = YoutubeDl::new(reqwest::Client::new(), query);
         } else {
-            src = YoutubeDl::new(reqwest::Client::new(), format!("ytsearch1:{}", query));
+            src = YoutubeDl::new_search(reqwest::Client::new(), query);
         }
         let metadata = src.aux_metadata().await.unwrap();
 

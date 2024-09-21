@@ -1,1 +1,0 @@
-/home/vt/dev/linkbot/target/release/linkbot: /home/vt/dev/linkbot/src/interaction/music/mod.rs /home/vt/dev/linkbot/src/interaction/music/play.rs /home/vt/dev/linkbot/src/interaction/ping.rs /home/vt/dev/linkbot/src/interaction.rs /home/vt/dev/linkbot/src/main.rs
