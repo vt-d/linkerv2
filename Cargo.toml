@@ -29,6 +29,7 @@ songbird = { git = "https://github.com/Erk-/songbird", branch = "erk/twilight-0-
 twilight-standby = "0.16.0-rc.1"
 twilight-util = { version = "0.16.0-rc.1", features = ["builder"] }
 reqwest = "0.11"
+# parking_lot = "0.12.3"
 
 [dependencies.symphonia]
 version = "0.5.2"

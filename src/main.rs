@@ -29,11 +29,11 @@ static SHUTDOWN: AtomicBool = AtomicBool::new(false);
 
 type State = Arc<StateRef>;
 
-#[derive(Debug)]
 struct StateRef {
     http: Arc<Client>,
     songbird: Songbird,
     standby: Standby,
+    reqwest: reqwest::Client,
 }
 
 #[tokio::main]
@@ -53,7 +53,7 @@ async fn main() -> anyhow::Result<()> {
         .try_init()?;
 
     let client = Arc::new(Client::new(token.clone()));
-    let config = ConfigBuilder::new(token.clone(), Intents::GUILD_VOICE_STATES)
+    let config = ConfigBuilder::new(token.clone(), Intents::GUILD_VOICE_STATES | Intents::GUILDS)
         .presence(presence())
         .build();
 
@@ -90,6 +90,8 @@ async fn main() -> anyhow::Result<()> {
         );
 
         let songbird = Songbird::twilight(Arc::new(senders), user_id);
+        // let id = shards.first().unwrap().0.current_user().unwrap().id; // this should
+        // process.exit()
 
         (
             shards,
@@ -97,6 +99,7 @@ async fn main() -> anyhow::Result<()> {
                 http: client.clone(),
                 songbird,
                 standby: Standby::new(), // not required for now but good to have
+                reqwest: reqwest::Client::new(),
             }),
         )
     };
