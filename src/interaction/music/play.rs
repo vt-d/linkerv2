@@ -13,7 +13,7 @@ use super::CommandContext;
 #[command(name = "play", desc = "Play music in VC!")]
 pub struct MusicPlay {
     #[command(desc = "Search term to find songs/videos.")]
-    pub query: String, // twilight-ctxs RAHHH
+    pub query: String, // twilight-interactions RAHHH
 }
 
 impl MusicPlay {
@@ -65,7 +65,7 @@ impl MusicPlay {
         let mut embed = EmbedBuilder::new()
             .title(":white_check_mark: `/play` - Success")
             .description(format!(
-                ":arrow_forward: [`{} - {}`]({})",
+                "Artist: **{}**\nTitle: [`{}`]({})",
                 metadata.artist.as_deref().unwrap_or(""),
                 metadata.title.as_deref().unwrap_or(""),
                 metadata.source_url.as_deref().unwrap_or(""),

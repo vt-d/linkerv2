@@ -5,8 +5,9 @@ use super::{CommandContext, Handleable};
 
 mod pause;
 mod play;
+mod resume;
 
-// TODO: defer_call function
+// TODO: get_call function
 
 #[derive(CommandModel, CreateCommand, Debug)]
 #[command(name = "music", desc = "Play music in VC!")]
@@ -15,6 +16,8 @@ pub enum MusicCommand {
     Play(play::MusicPlay),
     #[command(name = "pause")]
     Pause(pause::MusicPause),
+    #[command(name = "resume")]
+    Resume(resume::MusicResume),
 }
 
 impl Handleable for MusicCommand {
@@ -25,6 +28,7 @@ impl Handleable for MusicCommand {
         match command {
             MusicCommand::Play(command) => command.run(ctx).await,
             MusicCommand::Pause(command) => command.run(ctx).await,
+            MusicCommand::Resume(command) => command.run(ctx).await,
         }
     }
 }

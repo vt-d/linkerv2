@@ -6,10 +6,10 @@ use twilight_util::builder::{embed::EmbedBuilder, InteractionResponseDataBuilder
 use crate::interaction::CommandContext;
 
 #[derive(CommandModel, CreateCommand, Debug)]
-#[command(name = "pause", desc = "Pause the current song playing in VC")]
-pub struct MusicPause;
+#[command(name = "resume", desc = "Resume the current song playing in VC")]
+pub struct MusicResume;
 
-impl MusicPause {
+impl MusicResume {
     pub async fn run(&self, ctx: CommandContext) -> anyhow::Result<()> {
         let guild_id = match ctx.interaction.guild_id {
             Some(guild_id) => guild_id,
@@ -40,9 +40,9 @@ impl MusicPause {
             call_lock.lock().await
         };
 
-        call.queue().pause()?;
+        call.queue().resume()?;
 
-        let embed = EmbedBuilder::new().title(":white_check_mark: `/pause` - Success");
+        let embed = EmbedBuilder::new().title(":white_check_mark: `/resume` - Success");
 
         ctx.reply(InteractionResponse {
             kind: InteractionResponseType::ChannelMessageWithSource,
